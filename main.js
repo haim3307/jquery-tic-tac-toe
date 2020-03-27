@@ -48,14 +48,9 @@ $(document).ready(function () {
 
 class XoGame {
     static clickedC(p) {
-        console.log('click time is : ' + clickCheck);
-
         if (clickCheck) {
-            console.log('p= ' + $(p).html());
             $(p).html(htmlIs);
             $(p).attr('id', idIs);
-
-
         }
 
         $(p).siblings().click(function () {
@@ -84,7 +79,6 @@ class XoGame {
     }
 
     static chooseSolder1(p) {
-        console.log('phase 2 - enter function ,first time ' + p);
         $('#playersScreen h1').text('בחר/י צורה!');
 
         checkIdAndHtml(p);
@@ -171,7 +165,6 @@ class XoGame {
         const final = [];
         let g = gameGrid;
         while (i < roof) {
-            console.log(i);
             final[i - 1] = $('tr:nth-child(' + eval(two) + ') td:nth-child(' + eval(one) + ')').text();
             i++;
             g -= 1;
