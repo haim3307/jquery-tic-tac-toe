@@ -10,7 +10,7 @@ var X1 = 'X',
     O1 = 'O',
     Y1 = O1,
     matchFlagIs = false,
-    pcOplayer = false,
+    pcOrPlayer = false,
     clickCheck, prvHTML, htmlIs, prvId, idIs, firstmove,
     gameGrid = 3,
     findO = localStorage.getItem('Oscore'),
@@ -20,15 +20,15 @@ var X1 = 'X',
 
 $(document).ready(function () {
     $('#pc').click(function () {
-        pcOplayer = true;
-        var tPc = this;
+        pcOrPlayer = true;
+        const tPc = this;
         chooseSolder1(tPc, X1);
 
     });
     $('#player').click(function () {
-        var tPl = this;
+        const tPl = this;
         chooseSolder1(tPl, O1);
-        pcOplayer = false;
+        pcOrPlayer = false;
 
     });
     changeGrid(3);
@@ -51,15 +51,15 @@ function chooseSolder1(p) {
     console.log('phase 2 - enter function ,first time ' + p);
     $('#playersScreen h1').text('בחר/י צורה!');
 
-    function checkidNhtml() {
+    function checkIdAndHtml() {
         //if first click
         if (!clickCheck) {
             prvHTML = $(p).html();
             prvId = $(p).attr('id');
-            clickCheck = $(p).attr('id') == 'pc' ? 1 : 2;
+            clickCheck = $(p).attr('id') === 'pc' ? 1 : 2;
 
-        } else if (clickCheck == 1 || 2) {
-            clickCheck = $(p).attr('id') == 'pc' ? 1 : 2;
+        } else if (clickCheck === 1 || 2) {
+            clickCheck = $(p).attr('id') === 'pc' ? 1 : 2;
             htmlIs = prvHTML;
             prvHTML = $(p).html();
             idIs = prvId;
@@ -67,7 +67,7 @@ function chooseSolder1(p) {
 
         }
     }
-    checkidNhtml();
+    checkIdAndHtml();
     clickedC();
 
     $(p).siblings().click(clickedC);
@@ -107,48 +107,43 @@ function chooseSolder1(p) {
 }
 
 function createBoard(gameNet) {
-    var XOGameTab = '';
-    for (var i = 0; i < gameNet; i++) {
-        XOGameTab += '<tr>';
-        for (var x = 0; x < gameNet; x++)
-            XOGameTab += '<td></td>';
-        XOGameTab += '</tr>';
-    }
-    $('table').html(XOGameTab);
+    $('table').html(`
+        <tr>
+            ${`<td></td>`.repeat(gameNet)}
+        </tr>
+     `.repeat(gameNet)
+    );
 }
 
-function changeGrid(gnumb) {
-    createBoard(gnumb);
+function changeGrid(gridNumber) {
+    createBoard(gridNumber);
     $('td').click(function () {
         if (matchFlagIs) return;
-        var thisTD = $(this);
-        XOGame(thisTD);
-        if (pcOplayer) pcPlayer(Y1);
+        let validMove = XOGame($(this));
+        if (pcOrPlayer && validMove) {
+            let pcChoice = pcPlayer(Y1);
+            XOGame(pcChoice);
+        }
     });
 }
 
 
-function pcPlayer(O1) {
-    var numOfTd = $('td').length;
-    var randi = Math.ceil(Math.random() * numOfTd);
-    if (Y1 == X1) Y1 = O1;
-    else {
-        Y1 = X1
-    }
-    $('td')[randi].innerText = Y1;
-
+function pcPlayer() {
+    const $tds = $('td:not(.clicked)');
+    const randi = Math.floor(Math.random() * $tds.length);
+    return $($tds[randi]);
 }
 
-function XOGame(thisTD) {
-    var gamenet = $('tr').length;
-    var cTD = thisTD;
-
-    if (cTD.hasClass('clicked') || matchFlagIs) return;
-    var tdIndex = cTD.index() + 1,
+/**
+ * @return {boolean}
+ */
+function XOGame(cTD) {
+    if (cTD.hasClass('clicked') || matchFlagIs) return false;
+    const tdIndex = cTD.index() + 1,
         trIndex = cTD.parent().index() + 1;
 
-    function colorNswitch() {
-        if (Y1 == X1) {
+    function colorAndSwitch() {
+        if (Y1 === X1) {
             if (firstmove) Y1 = O1;
             firstmove = true;
             cTD.addClass('clicked clicked' + Y1);
@@ -159,33 +154,27 @@ function XOGame(thisTD) {
 
         }
     }
-    colorNswitch();
+    colorAndSwitch();
     cTD.text(Y1);
-    var Yis = $(this).text();
-    var gameNet = $('tr').length;
+    const gameNet = $('tr').length;
 
     function checkIt(i, roof, two, one) {
-        var final = [];
-        var g = gameNet;
+        const final = [];
+        let g = gameNet;
         while (i < roof) {
             console.log(i);
-            var mycommand = $('tr:nth-child(' + eval(two) + ') td:nth-child(' + eval(one) + ')').text()
-
-            var innerT = mycommand;
-            final[i - 1] = innerT;
+            final[i - 1] = $('tr:nth-child(' + eval(two) + ') td:nth-child(' + eval(one) + ')').text();
             i++;
             g -= 1;
         }
-        var finalIs = final.reduce(function (a, b) {
-            return (a == b) ? a : NaN;
-        });
+        const finalIs = final.reduce( (a, b) => (a === b) ? a : NaN);
         if (finalIs) {
             WinTitle(finalIs[0] + ' זכה במשחק!');
             matchFlagIs = true;
-            setTimeout(function () {
-                var f = eval('find' + Y1);
-                var R = !f ? 1 : eval(f) + 1;
-                localStorage.setItem(Y1 + 'score', R);
+            setTimeout(() => {
+                const f = eval('find' + Y1);
+                const R = !f ? 1 : eval(f) + 1;
+                localStorage.setItem(Y1 + 'score', String(R));
                 callWinT();
 
             }, 2000);
@@ -207,7 +196,7 @@ function XOGame(thisTD) {
     checkIt('1', gameNet + 1, 'i', 'i');
     checkIt('1', gameNet + 1, 'g', 'i');
 
-
+    return true;
 }
 
 function WinTitle(textIs) {
