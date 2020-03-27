@@ -6,12 +6,12 @@
 /*global $, window, document */
 
 // Simple jQuery event handler
-var X1 = 'X',
+let X1 = 'X',
     O1 = 'O',
     Y1 = O1,
     matchFlagIs = false,
     pcOrPlayer = false,
-    clickCheck, prvHTML, htmlIs, prvId, idIs, firstmove,
+    clickCheck, prvHTML, htmlIs, prvId, idIs, firstMove,
     gameGrid = 3,
     findO = localStorage.getItem('Oscore'),
     findX = localStorage.getItem('Xscore'),
@@ -46,33 +46,8 @@ $(document).ready(function () {
 
 });
 
-
-function chooseSolder1(p) {
-    console.log('phase 2 - enter function ,first time ' + p);
-    $('#playersScreen h1').text('בחר/י צורה!');
-
-    function checkIdAndHtml() {
-        //if first click
-        if (!clickCheck) {
-            prvHTML = $(p).html();
-            prvId = $(p).attr('id');
-            clickCheck = $(p).attr('id') === 'pc' ? 1 : 2;
-
-        } else if (clickCheck === 1 || 2) {
-            clickCheck = $(p).attr('id') === 'pc' ? 1 : 2;
-            htmlIs = prvHTML;
-            prvHTML = $(p).html();
-            idIs = prvId;
-            prvId = $(p).attr('id');
-
-        }
-    }
-    checkIdAndHtml();
-    clickedC();
-
-    $(p).siblings().click(clickedC);
-
-    function clickedC() {
+class XoGame {
+    static clickedC(p) {
         console.log('click time is : ' + clickCheck);
 
         if (clickCheck) {
@@ -90,77 +65,111 @@ function chooseSolder1(p) {
         });
 
     }
-    $(p).html('<div class="halfO">O</div><div class="halfX">X</div>');
-    $('.half' + X1).click(function () {
-        setSolder(X1);
-    });
-    $('.half' + O1).click(function () {
-        setSolder(O1);
-    });
 
-    function setSolder(u) {
-        WinTitle('X score: ' + localX + ' || O score : ' + localO);
-        Y1 = u;
-        $('#playersScreen').hide();
-        $('#theBoard').fadeIn(500);
+    static checkIdAndHtml(p) {
+        //if first click
+        if (!clickCheck) {
+            prvHTML = $(p).html();
+            prvId = $(p).attr('id');
+            clickCheck = $(p).attr('id') === 'pc' ? 1 : 2;
+
+        } else if (clickCheck === 1 || 2) {
+            clickCheck = $(p).attr('id') === 'pc' ? 1 : 2;
+            htmlIs = prvHTML;
+            prvHTML = $(p).html();
+            idIs = prvId;
+            prvId = $(p).attr('id');
+
+        }
     }
-}
 
-function createBoard(gameNet) {
-    $('table').html(`
+    static chooseSolder1(p) {
+        console.log('phase 2 - enter function ,first time ' + p);
+        $('#playersScreen h1').text('בחר/י צורה!');
+
+        checkIdAndHtml(p);
+
+        clickedC(p);
+
+        $(p).siblings().click(clickedC);
+
+        $(p).html('<div class="halfO">O</div><div class="halfX">X</div>');
+        $('.half' + X1).click(function () {
+            setSolder(X1);
+        });
+        $('.half' + O1).click(function () {
+            setSolder(O1);
+        });
+
+        function setSolder(u) {
+            WinTitle('X score: ' + localX + ' || O score : ' + localO);
+            Y1 = u;
+            $('#playersScreen').hide();
+            $('#theBoard').fadeIn(500);
+        }
+    }
+
+    static createBoard(gameNet) {
+        $('table').html(`
         <tr>
             ${`<td></td>`.repeat(gameNet)}
         </tr>
      `.repeat(gameNet)
-    );
-}
+        );
+    }
 
-function changeGrid(gridNumber) {
-    createBoard(gridNumber);
-    $('td').click(function () {
-        if (matchFlagIs) return;
-        let validMove = XOGame($(this));
-        if (pcOrPlayer && validMove) {
-            let pcChoice = pcPlayer(Y1);
-            XOGame(pcChoice);
-        }
-    });
-}
+    static changeGrid(gridNumber) {
+        matchFlagIs = false;
+        createBoard(gridNumber);
+        $('td').click(function () {
+            if (matchFlagIs) return;
+            let validMove = play($(this));
+            if (pcOrPlayer && validMove) {
+                let pcChoice = pcPlayer(Y1);
+                play(pcChoice);
+            }
+        });
+    }
 
+    static pcPlayer() {
+        const $tds = $('td:not(.clicked)');
+        const randi = Math.floor(Math.random() * $tds.length);
+        return $($tds[randi]);
+    }
 
-function pcPlayer() {
-    const $tds = $('td:not(.clicked)');
-    const randi = Math.floor(Math.random() * $tds.length);
-    return $($tds[randi]);
-}
-
-/**
- * @return {boolean}
- */
-function XOGame(cTD) {
-    if (cTD.hasClass('clicked') || matchFlagIs) return false;
-    const tdIndex = cTD.index() + 1,
-        trIndex = cTD.parent().index() + 1;
-
-    function colorAndSwitch() {
+    static colorAndSwitch(cTD) {
         if (Y1 === X1) {
-            if (firstmove) Y1 = O1;
-            firstmove = true;
+            if (firstMove) Y1 = O1;
+            firstMove = true;
             cTD.addClass('clicked clicked' + Y1);
         } else {
-            if (firstmove) Y1 = X1;
-            firstmove = true;
+            if (firstMove) Y1 = X1;
+            firstMove = true;
             cTD.addClass('clicked clicked' + Y1);
 
         }
     }
-    colorAndSwitch();
-    cTD.text(Y1);
-    const gameNet = $('tr').length;
 
-    function checkIt(i, roof, two, one) {
+    static play(cTD) {
+        if (cTD.hasClass('clicked') || matchFlagIs) return false;
+        const tdIndex = cTD.index() + 1,
+            trIndex = cTD.parent().index() + 1;
+
+        colorAndSwitch(cTD);
+        cTD.text(Y1);
+        gameGrid = $('tr').length;
+
+        checkIt('1', gameGrid + 1, trIndex, 'i');
+        checkIt('1', gameGrid + 1, 'i', tdIndex);
+        checkIt('1', gameGrid + 1, 'i', 'i');
+        checkIt('1', gameGrid + 1, 'g', 'i');
+
+        return true;
+    }
+
+    static checkIt(i, roof, two, one) {
         const final = [];
-        let g = gameNet;
+        let g = gameGrid;
         while (i < roof) {
             console.log(i);
             final[i - 1] = $('tr:nth-child(' + eval(two) + ') td:nth-child(' + eval(one) + ')').text();
@@ -178,27 +187,19 @@ function XOGame(cTD) {
                 callWinT();
 
             }, 2000);
-
-
-            function callWinT() {
-                localX = !findX ? 'none' : localStorage.getItem('Xscore');
-                localO = !findO ? 'none' : localStorage.getItem('Oscore');
-                WinTitle('X score: ' + localX + ' || O score : ' + localO);
-
-            }
         }
-
 
     }
 
-    checkIt('1', gameNet + 1, trIndex, 'i');
-    checkIt('1', gameNet + 1, 'i', tdIndex);
-    checkIt('1', gameNet + 1, 'i', 'i');
-    checkIt('1', gameNet + 1, 'g', 'i');
+    static callWinT() {
+        localX = !findX ? 'none' : localStorage.getItem('Xscore');
+        localO = !findO ? 'none' : localStorage.getItem('Oscore');
+        WinTitle('X score: ' + localX + ' || O score : ' + localO);
 
-    return true;
+    }
+    static WinTitle(textIs) {
+        $('.container h1').text(textIs);
+    }
 }
 
-function WinTitle(textIs) {
-    $('.container h1').text(textIs);
-}
+let {clickedC,callWinT, checkIdAndHtml, chooseSolder1, createBoard, changeGrid, pcPlayer, colorAndSwitch, play,WinTitle,checkIt} = XoGame;
