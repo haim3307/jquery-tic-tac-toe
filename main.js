@@ -56,28 +56,16 @@ function chooseSolder1(p) {
     function checkidNhtml() {
         //if first click
         if (!clickCheck) {
-            console.log('pull html content ' + prvHTML);
             prvHTML = $(p).html();
-            console.log('saved html content ' + prvHTML);
-            console.log('pull id ' + prvId);
             prvId = $(p).attr('id');
-            console.log('saved id ' + prvId);
             clickCheck = $(p).attr('id') == 'pc' ? 1 : 2;
-            console.log('pc is checked so: ' + clickCheck);
 
         } else if (clickCheck == 1 || 2) {
-            console.log('second time so: ' + clickCheck);
             clickCheck = $(p).attr('id') == 'pc' ? 1 : 2;
-            console.log('second time click is player: ' + clickCheck);
-            console.log('reading and saving exsiting html content in other var -pc prvHTML=' + prvHTML);
             htmlIs = prvHTML;
-            console.log('prv html content htmlIs=' + htmlIs);
             prvHTML = $(p).html();
-            console.log('saved second html content ' + prvHTML);
             idIs = prvId;
-            console.log('saved exsiting id content in other var -player idIs =' + idIs);
             prvId = $(p).attr('id');
-            console.log('pull id and save new id ' + prvId);
 
         }
     }
@@ -146,8 +134,14 @@ function changeGrid(gnumb) {
 function pcPlayer(O1) {
     var numOfTd = $('td').length;
     var randi = Math.ceil(Math.random() * numOfTd);
+    if (Y1 == X1) Y1 = O1;
+    else {
+        Y1 = X1
+    }
+//    colorNswitch();
 
-    $('td')[randi].innerText = 'X';
+    $('td')[randi].innerText = Y1;
+
     //    $('td')[randi].addClass('clicked clickedX');
 }
 
@@ -158,17 +152,20 @@ function XOGame(thisTD) {
     if (cTD.hasClass('clicked') || matchFlagIs) return;
     var tdIndex = cTD.index() + 1,
         trIndex = cTD.parent().index() + 1;
-    if (Y1 == X1) {
-        if (firstmove) Y1 = O1;
-        firstmove = true;
-        cTD.addClass('clicked clicked' + Y1);
-    } else {
-        if (firstmove) Y1 = X1;
-        firstmove = true;
-        cTD.addClass('clicked clicked' + Y1);
 
+    function colorNswitch() {
+        if (Y1 == X1) {
+            if (firstmove) Y1 = O1;
+            firstmove = true;
+            cTD.addClass('clicked clicked' + Y1);
+        } else {
+            if (firstmove) Y1 = X1;
+            firstmove = true;
+            cTD.addClass('clicked clicked' + Y1);
+
+        }
     }
-
+    colorNswitch();
     cTD.text(Y1);
     var Yis = $(this).text();
     var gameNet = $('tr').length;
@@ -190,7 +187,7 @@ function XOGame(thisTD) {
         });
         if (finalIs) {
             WinTitle(finalIs[0] + ' זכה במשחק!');
-            matchFlagIs = true;
+            matchFlagIs = finalIs;
             setTimeout(function () {
                 if (finalIs[0] == 'X') {
                     if (!findX) {
