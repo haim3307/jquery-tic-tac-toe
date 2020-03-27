@@ -15,7 +15,13 @@ var X1 = 'X',
     findX = localStorage.getItem('Xscore'),
     localX = !findX ? 'none' : localStorage.getItem('Xscore'),
     localO = !findO ? 'none' : localStorage.getItem('Oscore');
+$('td').click(function () {
+    console.log('phase 1.5');
 
+    var thisTD = $(this);
+    XOGame(gnumb, thisTD);
+    pcPlayer(O1);
+});
 
 $(document).ready(function () {
     WinTitle('X score: ' + localX + ' || O score : ' + localO);
@@ -32,21 +38,23 @@ $(document).ready(function () {
         changeGrid(9);
     });
 
-    function changeGrid(gnumb) {
-        createBoard(gnumb);
-        $('td').click(function () {
-            console.log('phase 1.5');
 
+    $('td').click(function () {
+        if (matchFlagIs) return false;
+        else {
             var thisTD = $(this);
-            XOGame(gnumb, thisTD);
-
-        });
-    }
-
+            XOGame(thisTD);
+            pcPlayer(O1);
+            console.log('hi');
+        }
+    });
 });
 
+function changeGrid(gnumb) {
+    createBoard(gnumb);
+}
+
 function createBoard(gameNet) {
-    console.log('phase 1');
     var XOGameTab = '';
     for (var i = 0; i < gameNet; i++) {
         XOGameTab += '<tr>';
@@ -57,9 +65,14 @@ function createBoard(gameNet) {
     $('table').html(XOGameTab);
 }
 
-function XOGame(gameNet, thisTD) {
-    console.log('phase 2');
-    console.log(gameNet);
+function pcPlayer(O1) {
+    var numOfTd = $('td').length;
+    var randi = Math.ceil(Math.random() * numOfTd);
+    $('td')[randi].innerText = O1;
+}
+
+function XOGame(thisTD) {
+    var gamenet = $('tr').length;
     var cTD = thisTD;
     if (cTD.hasClass('clicked') || matchFlagIs) return;
     var tdIndex = cTD.index() + 1,
@@ -76,10 +89,10 @@ function XOGame(gameNet, thisTD) {
 
     cTD.text(Y1);
     var Yis = $(this).text();
-
+    var gameNet = $('tr').length;
 
     function checkIt(i, roof, two, one) {
-        var prvfinal, final = [];
+        var final = [];
         var g = gameNet;
         while (i < roof) {
             console.log(i);
@@ -89,9 +102,7 @@ function XOGame(gameNet, thisTD) {
             final[i - 1] = innerT;
             i++;
             g -= 1;
-            console.log(final);
         }
-        console.log('loop done');
         var finalIs = final.reduce(function (a, b) {
             return (a == b) ? a : NaN;
         });
@@ -132,6 +143,7 @@ function XOGame(gameNet, thisTD) {
 
 
     }
+
     checkIt('1', gameNet + 1, trIndex, 'i');
     checkIt('1', gameNet + 1, 'i', tdIndex);
     checkIt('1', gameNet + 1, 'i', 'i');
