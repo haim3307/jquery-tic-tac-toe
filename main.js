@@ -6,10 +6,48 @@
 /*global $, window, document */
 
 // Simple jQuery event handler
+var X1 = 'X',
+    O1 = 'O',
+    Y1 = O1,
+    matchFlagIs = false,
+    gameGrid = 3,
+    findO = localStorage.getItem('Oscore'),
+    findX = localStorage.getItem('Xscore'),
+    localX = !findX ? 'none' : localStorage.getItem('Xscore'),
+    localO = !findO ? 'none' : localStorage.getItem('Oscore');
+
 
 $(document).ready(function () {
-    var XOGameTab = '',
-        gameNet = 9;
+    WinTitle('X score: ' + localX + ' || O score : ' + localO);
+    changeGrid(3);
+    $('.op1').click(function () {
+        changeGrid(3);
+
+    });
+    $('.op2').click(function () {
+        changeGrid(6);
+
+    });
+    $('.op3').click(function () {
+        changeGrid(9);
+    });
+
+    function changeGrid(gnumb) {
+        createBoard(gnumb);
+        $('td').click(function () {
+            console.log('phase 1.5');
+
+            var thisTD = $(this);
+            XOGame(gnumb, thisTD);
+
+        });
+    }
+
+});
+
+function createBoard(gameNet) {
+    console.log('phase 1');
+    var XOGameTab = '';
     for (var i = 0; i < gameNet; i++) {
         XOGameTab += '<tr>';
         for (var x = 0; x < gameNet; x++)
@@ -17,56 +55,91 @@ $(document).ready(function () {
         XOGameTab += '</tr>';
     }
     $('table').html(XOGameTab);
-    var X1 = 'X',
-        O1 = 'O',
+}
+
+function XOGame(gameNet, thisTD) {
+    console.log('phase 2');
+    console.log(gameNet);
+    var cTD = thisTD;
+    if (cTD.hasClass('clicked') || matchFlagIs) return;
+    var tdIndex = cTD.index() + 1,
+        trIndex = cTD.parent().index() + 1;
+
+    if (Y1 == O1) {
+        Y1 = X1;
+        cTD.addClass('clicked clickedX');
+    } else {
         Y1 = O1;
-    $('td').click(function () {
+        cTD.addClass('clicked clickedO');
 
-        var cTD = $(this);
-        if (cTD.hasClass('clicked')) return;
+    }
+
+    cTD.text(Y1);
+    var Yis = $(this).text();
 
 
-        var tdIndex = cTD.index() + 1,
-            trIndex = cTD.parent().index() + 1;
+    function checkIt(i, roof, two, one) {
+        var prvfinal, final = [];
+        var g = gameNet;
+        while (i < roof) {
+            console.log(i);
+            var mycommand = $('tr:nth-child(' + eval(two) + ') td:nth-child(' + eval(one) + ')').text()
 
-        if (Y1 == O1) {
-            Y1 = 'X';
-            cTD.addClass('clicked clickedX');
-        } else {
-            Y1 = 'O';
-            cTD.addClass('clicked clickedO');
-
+            var innerT = mycommand;
+            final[i - 1] = innerT;
+            i++;
+            g -= 1;
+            console.log(final);
         }
-        $(this).text(Y1);
-        var Yis = $(this).text();
-        function checkIt(i, roof, choose) {
-            var final = [];
-            while (i < roof) {
-                var mycommand = $('tr:nth-child(' + two + ') td:nth-child(' + i + ')').text()
-                var innerT = mycommand;
-                final[i - 1] = innerT;
-                i++;
-                g -= 1;
-            }
-            var finalIs=final.reduce(function (a, b) {
-                return (a==b) ? a : NaN;
-            });
-            if (finalIs) {
-                alert('win');
+        console.log('loop done');
+        var finalIs = final.reduce(function (a, b) {
+            return (a == b) ? a : NaN;
+        });
+        if (finalIs) {
+            WinTitle(finalIs[0] + ' won the game!');
+            setTimeout(function () {
+                matchFlagIs = true;
+                if (finalIs[0] == 'X') {
+                    if (!findX) {
+                        localStorage.setItem('Xscore', 1);
+                        callWinT();
+                    } else {
+                        localStorage.setItem('Xscore', eval(findX) + 1);
+                        callWinT();
+
+                    }
+                } else {
+                    if (!findO) {
+                        localStorage.setItem('Oscore', 1);
+                        callWinT();
+
+                    } else {
+                        localStorage.setItem('Oscore', eval(findO) + 1);
+                        callWinT();
+
+                    }
+                }
+            }, 2000);
+
+
+            function callWinT() {
+                localX = !findX ? 'none' : localStorage.getItem('Xscore');
+                localO = !findO ? 'none' : localStorage.getItem('Oscore');
+                WinTitle('X score: ' + localX + ' || O score : ' + localO);
 
             }
-
-
         }
-        checkIt(1, gameNet + 1, trIndex);
-        checkIt(1, gameNet + 1, tdIndex);
-        //checkIt('1', gameNet + 1, 'i', 'i');
-        //checkIt('1', gameNet + 1, 'g', 'i');
-
-    })
 
 
+    }
+    checkIt('1', gameNet + 1, trIndex, 'i');
+    checkIt('1', gameNet + 1, 'i', tdIndex);
+    checkIt('1', gameNet + 1, 'i', 'i');
+    checkIt('1', gameNet + 1, 'g', 'i');
 
 
+}
 
-});
+function WinTitle(textIs) {
+    $('h1').text(textIs);
+}
