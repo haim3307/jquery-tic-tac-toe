@@ -2,7 +2,7 @@
  * Auto-generated content from the Brackets New Project extension.
  */
 
-/*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50 */
+/*jslint vars: false, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50 */
 /*global $, window, document */
 
 // Simple jQuery event handler
@@ -22,9 +22,7 @@ $(document).ready(function () {
     $('#pc').click(function () {
         pcOplayer = true;
         var tPc = this;
-        console.log('phase 1 -first-click');
         chooseSolder1(tPc, X1);
-
 
     });
     $('#player').click(function () {
@@ -71,7 +69,7 @@ function chooseSolder1(p) {
     }
     checkidNhtml();
     clickedC();
-    //when click on brother:
+
     $(p).siblings().click(clickedC);
 
     function clickedC() {
@@ -101,7 +99,7 @@ function chooseSolder1(p) {
     });
 
     function setSolder(u) {
-        WinTitle('X תוצאה: ' + localX + ' || O תוצאה : ' + localO);
+        WinTitle('X score: ' + localX + ' || O score : ' + localO);
         Y1 = u;
         $('#playersScreen').hide();
         $('#theBoard').fadeIn(500);
@@ -125,7 +123,6 @@ function changeGrid(gnumb) {
         if (matchFlagIs) return;
         var thisTD = $(this);
         XOGame(thisTD);
-        //            alert(pcOplayer);
         if (pcOplayer) pcPlayer(Y1);
     });
 }
@@ -138,11 +135,8 @@ function pcPlayer(O1) {
     else {
         Y1 = X1
     }
-//    colorNswitch();
-
     $('td')[randi].innerText = Y1;
 
-    //    $('td')[randi].addClass('clicked clickedX');
 }
 
 function XOGame(thisTD) {
@@ -187,28 +181,13 @@ function XOGame(thisTD) {
         });
         if (finalIs) {
             WinTitle(finalIs[0] + ' זכה במשחק!');
-            matchFlagIs = finalIs;
+            matchFlagIs = true;
             setTimeout(function () {
-                if (finalIs[0] == 'X') {
-                    if (!findX) {
-                        localStorage.setItem('Xscore', 1);
-                        callWinT();
-                    } else {
-                        localStorage.setItem('Xscore', eval(findX) + 1);
-                        callWinT();
+                var f = eval('find' + Y1);
+                var R = !f ? 1 : eval(f) + 1;
+                localStorage.setItem(Y1 + 'score', R);
+                callWinT();
 
-                    }
-                } else {
-                    if (!findO) {
-                        localStorage.setItem('Oscore', 1);
-                        callWinT();
-
-                    } else {
-                        localStorage.setItem('Oscore', eval(findO) + 1);
-                        callWinT();
-
-                    }
-                }
             }, 2000);
 
 
